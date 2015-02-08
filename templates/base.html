@@ -113,9 +113,6 @@
     <div class="panel panel-default">
     <div class="panel-body">
     {% block right_panel %}
-    {% ifinstalled mezzanine.twitter %}
-    {% include "twitter/tweets.html" %}
-    {% endifinstalled %}
     {% endblock %}
     </div>
     </div>
@@ -147,6 +144,70 @@
 </footer>
 
 {% include "includes/footer_scripts.html" %}
+
+<script type="text/javascript">
+    function getAccountId() {
+        if (window.localStorage) {
+            var account_id = window.localStorage['giosg_demo_account'];
+            if (account_id) {
+                return account_id;
+            }
+        }
+        return 1;
+    };
+    function getServiceUrl() {
+        var default_url = 'https://service.giosg.com';
+        if (window.localStorage) {
+            var service_url = window.localStorage['giosg_demo_service_url'];
+            if (service_url) {
+                return service_url;
+            }
+        }
+        return default_url;
+    };
+    function setAccount(account) {
+        if (window.localStorage) {
+            window.localStorage['giosg_demo_account'] = account;
+            return true;
+        } else {
+            return false;
+        }
+    };
+    function setUrl(url) {
+        if (window.localStorage) {
+            window.localStorage['giosg_demo_service_url'] = url;
+            return true;
+        } else {
+            return false;
+        }
+    };
+    function setAccountAndUrl(account, url) {
+        return setAccount(account) && setUrl(url);
+    };
+    function updateDemoAccount() {
+        var id = $('#account-id').val();
+        var url = $('#service-host').val();
+        if (setAccountAndUrl(id, url)) {
+            alert('Demo shop is now using account id ' + id + ' on ' + url + '!');
+        } else {
+            alert('Oops! Something went wrong! Please try again!');
+        }
+    };
+
+    $(document).ready(function (argument) {
+        $('#account-id').val(getAccountId());
+        $('#service-host').val(getServiceUrl());
+    });
+</script>
+
+<!-- giosg tag -->
+<script>
+(function(w, t, f) {
+  var s='script',o='_giosg',h=getServiceUrl(),e,n;e=t.createElement(s);e.async=1;e.src=h+'/live/';
+  w[o]=w[o]||function(){(w[o]._e=w[o]._e||[]).push(arguments)};w[o]._c=f;w[o]._h=h;n=t.getElementsByTagName(s)[0];n.parentNode.insertBefore(e,n);
+})(window,document,getAccountId());
+</script>
+<!-- giosg tag -->
 
 </body>
 </html>

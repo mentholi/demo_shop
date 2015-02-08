@@ -382,6 +382,12 @@ OPTIONAL_APPS = (
 DEBUG_TOOLBAR_CONFIG = {"INTERCEPT_REDIRECTS": False}
 
 ###################
+# OVERRIDEN MEZZAZINE SETTINGS #
+###################
+SITE_TITLE = 'LiveDemo shop'
+SITE_TAGLINE = ''
+
+###################
 # DEPLOY SETTINGS #
 ###################
 

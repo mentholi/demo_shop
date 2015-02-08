@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block meta_title %}{% trans "Home" %}{% endblock %}
+{% block title %}{% trans "Home" %}{% endblock %}
+
+{% block breadcrumb_menu %}
+<li class="active">{% trans "Home" %}</li>
+{% endblock %}
+
+{% block main %}
+{% blocktrans %}
+<h2>Welcome to giosg Live demo shop!</h2>
+<p>
+    Welcome to demo shop for giosg Live. This site is intended for testing giosg Live settings and features.
+    Here are some quick links to get you started:
+</p>
+<ul>
+    <li><a href="/getting-started/">How to use demo shop with your giosg account</a></li>
+    <li><a href="/configure-basket/">Configure giosg BASKET</a></li>
+    <li><a href="/configure-pipeline/">Configure giosg PIPELINE</a></li>
+    <li><a href="/custom-chat-buttons/">Create custom chat button</a></li>
+    <li><a href="/api-usage/">giosg javascript api examples</a></li>
+    <li><a href="/rules/">Create demo rule</a></li>
+</ul>
+{% endblocktrans %}
+{% endblock %}

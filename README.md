@@ -20,6 +20,7 @@ Demo shop for giosg Live. Contains some dummy pages and simple shopping cart.
 * Profit!
 
 # Fabric settings example
+```python
 FABRIC = {
     "SSH_USER": "root", # SSH username
     "SSH_PASS":  "your secure ssh password, don't commmit this! :) ", # SSH password (consider key-based authentication)
@@ -36,3 +37,4 @@ FABRIC = {
     "SECRET_KEY": 'super secret key, keep this private!',
     "NEVERCACHE_KEY": 'Never cache key',
 }
+```

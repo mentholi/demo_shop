@@ -36,4 +36,4 @@ CACHES = {
 
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 
-SHOP_CURRENCY_LOCALE = "en_US"
+SHOP_CURRENCY_LOCALE = "en_US.utf8"

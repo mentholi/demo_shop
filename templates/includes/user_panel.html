@@ -1,0 +1,53 @@
+{% load i18n future shop_tags mezzanine_tags %}
+<div class="panel panel-default user-panel">
+    <div class="panel-body">
+    {% spaceless %}
+    <a href="{% url "shop_cart" %}">
+    <span class="glyphicon glyphicon-shopping-cart"></span>
+    {% blocktrans count request.cart.total_quantity as cart_quantity %}1 item{% plural %}{{ cart_quantity }} items{% endblocktrans %}
+    {% trans "in cart" %}:
+    {{ request.cart.total_price|currency }}</a><br>
+    {% if request.cart.total_quantity != 0 %}
+    <a href="{% url "shop_checkout" %}" class="btn btn-primary">
+        {% if request.session.order.step %}{% trans "Return to Checkout" %}{% else %}{% trans "Go to Checkout" %}{% endif %}
+    </a><br>
+    {% endif %}
+    {% if settings.SHOP_USE_WISHLIST %}
+    <a href="{% url "shop_wishlist" %}" class="btn-wishlist">
+    <span class="glyphicon glyphicon-star"></span>
+    {% blocktrans count request.wishlist|length as wishlist_count %}Wishlist contains 1 item{% plural %} Wishlist contains {{ wishlist_count }} items{% endblocktrans %}</a>
+    {% endif %}
+    {% ifinstalled mezzanine.accounts %}
+    <br>
+    {% include "accounts/includes/user_panel.html" %}
+    {% endifinstalled %}
+    {% endspaceless %}
+    </div>
+</div>
+
+<!-- Hidden giosg cart -->
+<div class="giosg_data" style="display:none">
+  <div class="giosg_shoppingcart">
+    {% for item in request.cart %}
+    <div class="giosg_product_row">
+      <span class="giosg_product_number">{{ item.id }}</span>
+      <span class="giosg_product_name">{{ item.description }}</span>
+      <span class="giosg_product_price">
+        {{ item.unit_price|currency }}
+      </span>
+      <span class="giosg_product_amount">
+          {{ item.quantity }}
+      </span>
+      <span class="giosg_product_balance">
+      1
+      </span>
+    </div>
+    {% endfor %}
+    <div class="giosg_currency">
+      $
+    </div>
+    <div class="giosg_total_sum">
+        {{ request.cart.total_price|currency }}
+    </div>
+  </div>
+</div>

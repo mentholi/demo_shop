@@ -50,7 +50,6 @@ env.domains_nginx = " ".join(env.domains)
 env.domains_python = ", ".join(["'%s'" % s for s in env.domains])
 env.ssl_disabled = "#" if len(env.domains) > 1 else ""
 env.repo_url = conf.get("REPO_URL", "")
-env.git = env.repo_url.startswith("git") or env.repo_url.endswith(".git")
 env.reqs_path = conf.get("REQUIREMENTS_PATH", None)
 env.gunicorn_port = conf.get("GUNICORN_PORT", 8000)
 env.locale = conf.get("LOCALE", "en_US.UTF-8")
@@ -376,39 +375,7 @@ def create():
                 return False
             remove()
         run("virtualenv %s --distribute" % env.proj_name)
-        vcs = "git" if env.git else "hg"
-        run("%s clone %s %s" % (vcs, env.repo_url, env.proj_path))
-
-    # Create DB and DB user.
-    pw = db_pass()
-    user_sql_args = (env.proj_name, pw.replace("'", "\'"))
-    user_sql = "CREATE USER %s WITH ENCRYPTED PASSWORD '%s';" % user_sql_args
-    psql(user_sql, show=False)
-    shadowed = "*" * len(pw)
-    print_command(user_sql.replace("'%s'" % pw, "'%s'" % shadowed))
-    psql("CREATE DATABASE %s WITH OWNER %s ENCODING = 'UTF8' "
-         "LC_CTYPE = '%s' LC_COLLATE = '%s' TEMPLATE template0;" %
-         (env.proj_name, env.proj_name, env.locale, env.locale))
-
-    # Set up SSL certificate.
-    if not env.ssl_disabled:
-        conf_path = "/etc/nginx/conf"
-        if not exists(conf_path):
-            sudo("mkdir %s" % conf_path)
-        with cd(conf_path):
-            crt_file = env.proj_name + ".crt"
-            key_file = env.proj_name + ".key"
-            if not exists(crt_file) and not exists(key_file):
-                try:
-                    crt_local, = glob(join("deploy", "*.crt"))
-                    key_local, = glob(join("deploy", "*.key"))
-                except ValueError:
-                    parts = (crt_file, key_file, env.domains[0])
-                    sudo("openssl req -new -x509 -nodes -out %s -keyout %s "
-                         "-subj '/CN=%s' -days 3650" % parts)
-                else:
-                    upload_template(crt_local, crt_file, use_sudo=True)
-                    upload_template(key_local, key_file, use_sudo=True)
+        run("git clone %s %s" % (env.repo_url, env.proj_path))
 
     # Set up project.
     upload_template_and_reload("settings")
@@ -452,8 +419,6 @@ def remove():
         remote_path = template["remote_path"]
         if exists(remote_path):
             sudo("rm %s" % remote_path)
-    psql("DROP DATABASE IF EXISTS %s;" % env.proj_name)
-    psql("DROP USER IF EXISTS %s;" % env.proj_name)
 
 
 ##############
@@ -495,15 +460,10 @@ def deploy():
     for name in get_templates():
         upload_template_and_reload(name)
     with project():
-        backup("last.db")
-        static_dir = static()
-        if exists(static_dir):
-            run("tar -cf last.tar %s" % static_dir)
-        git = env.git
-        last_commit = "git rev-parse HEAD" if git else "hg id -i"
+        last_commit = "git rev-parse HEAD"
         run("%s > last.commit" % last_commit)
         with update_changed_requirements():
-            run("git pull origin master -f" if git else "hg pull && hg up -C")
+            run("git pull origin master -f")
         manage("collectstatic -v 0 --noinput")
         manage("syncdb --noinput")
         manage("migrate --noinput")
@@ -523,7 +483,7 @@ def rollback():
     """
     with project():
         with update_changed_requirements():
-            update = "git checkout" if env.git else "hg up -C"
+            update = "git checkout"
             run("%s `cat last.commit`" % update)
         with cd(join(static(), "..")):
             run("tar -xf %s" % join(env.proj_path, "last.tar"))
